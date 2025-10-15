@@ -3,11 +3,11 @@ security:
     Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
 
   providers:
-    # ✅ Provider RADIUS (sera utilisé si USE_RADIUS=true)
+    # Provider RADIUS (sera utilisé si USE_RADIUS=true)
     radius_provider:
       id: App\Security\RadiusUserProvider
 
-    # ✅ Provider local pour secours ou test
+    # Provider local pour secours ou test
     local_provider:
       memory:
         users:

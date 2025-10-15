@@ -25,5 +25,4 @@ services:
             $port: '%env(int:RADIUS_PORT)%'
             $useRadius: '%env(bool:USE_RADIUS)%'
 
-    # 👇 L’alias pour ton provider local mémoire
     Symfony\Component\Security\Core\User\UserProviderInterface $localProvider: '@security.user.provider.concrete.local_provider'

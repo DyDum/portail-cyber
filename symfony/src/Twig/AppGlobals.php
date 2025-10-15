@@ -9,9 +9,9 @@ class AppGlobals extends AbstractExtension implements GlobalsInterface
     public function getGlobals(): array
     {
         // Lecture du fichier des catégories
-        $categoriesFile = __DIR__ . '/../../data/categories.json';
-        $categories = file_exists($categoriesFile)
-            ? json_decode(file_get_contents($categoriesFile), true)
+        $outilsFile = __DIR__ . '/../../data/outils.json';
+        $outils = file_exists($outilsFile)
+            ? json_decode(file_get_contents($outilsFile), true)
             : [];
 
         // Lecture du fichier des flux RSS
@@ -21,7 +21,7 @@ class AppGlobals extends AbstractExtension implements GlobalsInterface
             : [];
 
         return [
-            'categories' => $categories,
+            'outils' => $outils,
             'rssFeeds' => $rssFeeds,
         ];
     }

@@ -14,25 +14,25 @@
 
     <div class="mb-3">
         <a href="{{ path('dashboard') }}" 
-           class="btn btn-outline-secondary {% if selectedCategory is null %}active{% endif %}">
+           class="btn btn-outline-secondary {% if selectedoutil is null %}active{% endif %}">
            Toutes
         </a>
-        {% for categoryName, links in categories %}
-            <a href="{{ path('dashboard') ~ '?category=' ~ categoryName|url_encode }}"
-               class="btn btn-outline-secondary {% if selectedCategory and selectedCategory == categoryName %}active{% endif %}">
-               {{ categoryName }}
+        {% for outilName, links in outils %}
+            <a href="{{ path('dashboard') ~ '?outil=' ~ outilName|url_encode }}"
+               class="btn btn-outline-secondary {% if selectedoutil and selectedoutil == outilName %}active{% endif %}">
+               {{ outilName }}
             </a>
         {% endfor %}
     </div>
 
     <!-- Cards des catégories -->
     <div class="row g-4">
-        {% for category, links in categories_dashboard %}
+        {% for outil, links in outils_dashboard %}
             <div class="col-12 col-md-6 col-lg-4">
                 <div class="card h-100">
                     <div class="card-header">
                         <i class="bi bi-folder-fill me-2"></i>
-                        {{ category }}
+                        {{ outil }}
                     </div>
                     <div class="card-body">
                         {% for link in links %}

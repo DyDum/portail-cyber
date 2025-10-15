@@ -6,11 +6,6 @@
       - ./symfony:/var/www/html
     networks:
       - portail_net
-    environment:
-      - LDAP_SERVER=ldap-server
-      - LDAP_BASE_DN=DC=tondomaine,DC=local
-      - LDAP_BIND_DN=CN=ldapuser,CN=Users,DC=tondomaine,DC=local
-      - LDAP_BIND_PASSWORD=MotDePasseLDAP
 
   nginx:
     image: nginx:latest

@@ -11,15 +11,15 @@ class DashboardController extends AbstractController
     #[Route('/dashboard', name: 'dashboard')]
     public function index(Request $request): Response
     {
-        $categoryName = $request->query->get('category');
+        $outilName = $request->query->get('outil');
 
-        $categoriesFile = __DIR__ . '/../../data/categories.json';
-        $categories = file_exists($categoriesFile)
-            ? json_decode(file_get_contents($categoriesFile), true)
+        $outilsFile = __DIR__ . '/../../data/outils.json';
+        $outils = file_exists($outilsFile)
+            ? json_decode(file_get_contents($outilsFile), true)
             : [];
 
         // Cas d’erreur : fichier vide ou mal formé
-        if (!is_array($categories)) {
+        if (!is_array($outils)) {
             return $this->render('error.html.twig', [
                 'message' => "Le fichier des catégories est introuvable ou invalide.",
                 'backUrl' => $this->generateUrl('dashboard'),
@@ -27,25 +27,25 @@ class DashboardController extends AbstractController
         }
 
         // Si une catégorie spécifique est demandée
-        if ($categoryName !== null) {
-            if (!isset($categories[$categoryName])) {
+        if ($outilName !== null) {
+            if (!isset($outils[$outilName])) {
                 // Cas d’erreur : clé inexistante
                 return $this->render('error.html.twig', [
-                    'message' => "La catégorie demandée (« $categoryName ») n'existe pas.",
+                    'message' => "La catégorie demandée (« $outilName ») n'existe pas.",
                     'backUrl' => $this->generateUrl('dashboard'),
                 ]);
             }
 
             // On n’affiche que la catégorie demandée
-            $selectedCategory = [$categoryName => $categories[$categoryName]];
-            $categories = $selectedCategory;
+            $selectedoutil = [$outilName => $outils[$outilName]];
+            $outils = $selectedoutil;
         } else {
-            $selectedCategory = null;
+            $selectedoutil = null;
         }
 
         return $this->render('dashboard/index.html.twig', [
-            'categories_dashboard' => $categories,
-            'selectedCategory' => $categoryName,
+            'outils_dashboard' => $outils,
+            'selectedoutil' => $outilName,
         ]);
     }
 }
