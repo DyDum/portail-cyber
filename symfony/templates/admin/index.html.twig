@@ -1,0 +1,204 @@
+{% extends 'base.html.twig' %}
+{% block title %}Administration - Portail Cyber{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="mb-2">
+                <i class="bi bi-gear-fill me-3"></i>Administration
+            </h1>
+            <p class="text-light opacity-75">Gérez les catégories, liens et flux RSS de votre portail</p>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="bi bi-check-circle-fill me-2"></i>{{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+    {% for message in app.flashes('warning') %}
+        <div class="alert alert-warning alert-dismissible fade show">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+
+    <!-- Formulaires d'ajout -->
+    <div class="row g-4 mb-5">
+        <!-- Ajouter une catégorie -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                    <i class="bi bi-plus-circle-fill me-2"></i>Ajouter une catégorie
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Nom de la catégorie</label>
+                            <input type="text" name="new_category" class="form-control" placeholder="Ex: SIEM, SOC, Threat Intel..." required>
+                        </div>
+                        <button type="submit" name="add_category" class="btn btn-success w-100">
+                            <i class="bi bi-plus-lg me-2"></i>Ajouter la catégorie
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ajouter un bouton -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-link-45deg me-2"></i>Ajouter un lien
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Catégorie</label>
+                            <select name="category" class="form-select" required>
+                                <option value="">Sélectionnez une catégorie</option>
+                                {% for category, links in data %}
+                                    <option value="{{ category }}">{{ category }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Nom du lien</label>
+                            <input type="text" name="name" class="form-control" placeholder="Ex: Splunk, TheHive..." required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">URL</label>
+                            <input type="url" name="url" class="form-control" placeholder="https://..." required>
+                        </div>
+                        <button type="submit" name="add_button" class="btn btn-primary w-100">
+                            <i class="bi bi-plus-lg me-2"></i>Ajouter le lien
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gestion des catégories et liens -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h3 class="mb-4 text-white">
+                <i class="bi bi-folder-fill me-2"></i>Catégories et liens
+            </h3>
+            {% for category, links in data %}
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="bi bi-folder-fill me-2"></i>
+                            <strong>{{ category }}</strong>
+                            <span class="badge bg-light text-dark ms-2">{{ links|length }} lien(s)</span>
+                        </div>
+                        <a href="?delete_category={{ category }}" class="btn btn-sm btn-danger" onclick="return confirm('Supprimer cette catégorie et tous ses liens ?')">
+                            <i class="bi bi-trash-fill me-1"></i>Supprimer
+                        </a>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush">
+                            {% for link in links %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="bi bi-link-45deg text-primary me-2"></i>
+                                        <strong>{{ link.name }}</strong>
+                                        <span class="text-muted small ms-2">({{ link.url }})</span>
+                                    </div>
+                                    <div>
+                                        <a href="{{ link.url }}" target="_blank" class="btn btn-sm btn-outline-secondary me-2" title="Ouvrir">
+                                            <i class="bi bi-box-arrow-up-right"></i>
+                                        </a>
+                                        <a href="?delete_button={{ loop.index0 }}&cat={{ category }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Supprimer ce lien ?')" title="Supprimer">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </a>
+                                    </div>
+                                </li>
+                            {% else %}
+                                <li class="list-group-item text-muted text-center">
+                                    <i class="bi bi-info-circle me-2"></i>Aucun lien dans cette catégorie
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>Aucune catégorie créée. Commencez par ajouter une catégorie ci-dessus.
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Gestion des flux RSS -->
+    <div class="row">
+        <div class="col-12">
+            <h3 class="mb-4 text-white">
+                <i class="bi bi-rss-fill me-2"></i>Flux RSS
+            </h3>
+
+            <!-- Formulaire d'ajout RSS -->
+            <div class="card mb-4">
+                <div class="card-header" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                    <i class="bi bi-plus-circle-fill me-2"></i>Ajouter un flux RSS
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{{ path('admin_rss_add') }}">
+                        <div class="row g-3">
+                            <div class="col-md-5">
+                                <label class="form-label fw-semibold">Nom du flux</label>
+                                <input type="text" name="name" class="form-control" placeholder="Ex: CERT-FR, ANSSI..." required>
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label fw-semibold">URL du flux</label>
+                                <input type="url" name="url" class="form-control" placeholder="https://..." required>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="submit" class="btn btn-warning w-100">
+                                    <i class="bi bi-plus-lg me-1"></i>Ajouter
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Liste des flux RSS -->
+            <div class="card">
+                <div class="card-header" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">
+                    <i class="bi bi-list-ul me-2"></i>Flux RSS enregistrés
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        {% for feed in rssFeeds %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="bi bi-rss-fill text-warning me-2"></i>
+                                    <strong>{{ feed.name }}</strong>
+                                    <span class="text-muted small ms-2">({{ feed.url }})</span>
+                                </div>
+                                <div>
+                                    <a href="{{ feed.url }}" target="_blank" class="btn btn-sm btn-outline-secondary me-2" title="Ouvrir">
+                                        <i class="bi bi-box-arrow-up-right"></i>
+                                    </a>
+                                    <a href="{{ path('admin_rss_delete', {id: loop.index0}) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Supprimer ce flux RSS ?')" title="Supprimer">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </a>
+                                </div>
+                            </li>
+                        {% else %}
+                            <li class="list-group-item text-muted text-center">
+                                <i class="bi bi-info-circle me-2"></i>Aucun flux RSS enregistré
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

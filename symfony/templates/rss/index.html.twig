@@ -1,0 +1,76 @@
+{% extends 'base.html.twig' %}
+{% block title %}Flux RSS - Portail Cyber{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="mb-2">
+                <i class="bi bi-rss-fill me-3"></i>Flux RSS
+            </h1>
+            <p class="text-light opacity-75">Dernières actualités de vos sources de cybersécurité</p>
+        </div>
+    </div>
+
+    {# Barre de filtres des flux #}
+    <div class="mb-3">
+        <a href="{{ path('rss_list') }}" 
+           class="btn btn-outline-secondary {% if selectedFeed is null %}active{% endif %}">Tous</a>
+        {% for id, feed in rssFeeds %}
+            <a href="{{ path('rss_list') ~ '?feed=' ~ id }}" 
+               class="btn btn-outline-secondary {% if selectedFeed == id and selectedFeed is not null %}active{% endif %}">
+               {{ feed.name }}
+            </a>
+        {% endfor %}
+    </div>
+
+    {% if invalidFeed %}
+        <div class="alert alert-danger mt-4">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            Le flux demandé est introuvable ou inexistant.
+            <a href="{{ path('rss_list') }}" class="alert-link">Revenir à la liste complète</a>.
+        </div>
+
+    {% elseif articles is not empty %}
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            {% for article in articles %}
+                                <a href="{{ article.link }}" target="_blank" class="list-group-item list-group-item-action">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <h5 class="mb-2 text-dark fw-bold">{{ article.title }}</h5>
+                                            <div class="d-flex align-items-center text-muted small">
+                                                <i class="bi bi-rss-fill text-warning me-2"></i>
+                                                <span class="me-3">{{ article.source }}</span>
+                                                <i class="bi bi-clock me-2"></i>
+                                                <span>{{ article.date }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="ms-3">
+                                            <i class="bi bi-arrow-right text-muted fs-5"></i>
+                                        </div>
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    {% else %}
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle-fill me-2"></i>
+                    Aucun article disponible pour le moment.
+                    Vérifiez que des flux RSS sont configurés dans la page d'administration.
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

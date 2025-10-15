@@ -1,0 +1,49 @@
+security:
+  password_hashers:
+    Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+
+  providers:
+    # ✅ Provider RADIUS (sera utilisé si USE_RADIUS=true)
+    radius_provider:
+      id: App\Security\RadiusUserProvider
+
+    # ✅ Provider local pour secours ou test
+    local_provider:
+      memory:
+        users:
+          admin:
+            # mot de passe = admin
+            password: '$2y$13$GYIJXfYHzIwf4.c.o0AvVutaDn7AywIwZ.H8qj1s2/iIZhxWy042S'
+            roles: ['ROLE_ADMIN']
+          test:
+            password: '$2y$13$r7E7zUG7bcKH4e8xaSSlTOHnq16V0g7GwXmEoQsEcgrErxvIPtvDa'
+            roles: ['ROLE_USER']
+
+  firewalls:
+    dev:
+      pattern: ^/(_(profiler|wdt)|css|images|js)/
+      security: false
+
+    main:
+      lazy: true
+      # Par défaut, on utilisera le provider local
+      provider: local_provider
+      custom_authenticators:
+        - App\Security\RadiusAuthenticator
+      form_login:
+        login_path: login
+        check_path: login
+        default_target_path: /dashboard
+        always_use_default_target_path: true
+      logout:
+        path: logout
+        target: /
+
+  access_control:
+    - { path: ^/login, roles: PUBLIC_ACCESS }
+    - { path: ^/admin, roles: ROLE_ADMIN }
+    - { path: ^/dashboard, roles: ROLE_USER }
+    - { path: ^/, roles: ROLE_USER }
+
+  role_hierarchy:
+    ROLE_ADMIN: ROLE_USER

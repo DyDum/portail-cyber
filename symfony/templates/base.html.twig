@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Portail Cyber{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Top Navigation -->
+    <nav class="navbar navbar-dark top-nav">
+        <div class="container-fluid px-4">
+            <div class="d-flex align-items-center">
+                <button class="btn btn-link text-white me-3 sidebar-toggle" id="sidebarToggle">
+                    <i class="bi bi-list fs-4"></i>
+                </button>
+                <a class="navbar-brand fw-bold d-flex align-items-center" href="/dashboard">
+                    <i class="bi bi-shield-lock-fill me-2"></i>
+                    Portail Cyber
+                </a>
+            </div>
+            <div class="d-flex align-items-center">
+                <a href="/dashboard" class="nav-link text-white me-2">
+                    <i class="bi bi-house-fill me-1"></i> Dashboard
+                </a>
+                <a href="/admin" class="nav-link text-white me-2">
+                    <i class="bi bi-gear-fill me-1"></i> Admin
+                </a>
+                <a href="/logout" class="nav-link text-white">
+                    <i class="bi bi-box-arrow-right me-1"></i> Se déconnecter
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-content">
+            <!-- Catégories Section -->
+            <div class="sidebar-section">
+                <div class="sidebar-header" data-bs-toggle="collapse" data-bs-target="#categoriesMenu">
+                    <i class="bi bi-grid-3x3-gap-fill me-2"></i>
+                    <span>Catégories</span>
+                    <i class="bi bi-chevron-down ms-auto"></i>
+                </div>
+                <div class="collapse show" id="categoriesMenu">
+                    <a href="/dashboard" class="sidebar-item {{ app.request.get('category') is null and app.request.pathinfo == '/dashboard' ? 'active' : '' }}">
+                        <i class="bi bi-circle-fill me-2"></i>
+                        Toutes
+                    </a>
+                    {% if categories is defined %}
+                        {% for category, links in categories %}
+                        <a href="/dashboard?category={{ category|url_encode }}" class="sidebar-item {{ app.request.get('category') is not null and app.request.get('category') == category ? 'active' : '' }}">
+                            <i class="bi bi-circle me-2"></i>
+                            {{ category }}
+                        </a>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- RSS Section -->
+            <div class="sidebar-section">
+                <div class="sidebar-header" data-bs-toggle="collapse" data-bs-target="#rssMenu">
+                    <i class="bi bi-rss-fill me-2"></i>
+                    <span>RSS</span>
+                    <i class="bi bi-chevron-down ms-auto"></i>
+                </div>
+                <div class="collapse show" id="rssMenu">
+                    <a href="/rss" class="sidebar-item {{ app.request.get('feed') is null and app.request.pathinfo == '/rss' ? 'active' : '' }}">
+                        <i class="bi bi-circle-fill me-2"></i>
+                        Tous les flux
+                    </a>
+                    {% if rssFeeds is defined %}
+                        {% for feed in rssFeeds %}
+                        <a href="/rss?feed={{ loop.index0 }}" class="sidebar-item {{ app.request.get('feed') is not null and app.request.get('feed') == loop.index0 ? 'active' : '' }}">
+                            <i class="bi bi-circle me-2"></i>
+                            {{ feed.name }}
+                        </a>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        {% block body %}{% endblock %}
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Toggle sidebar
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        });
+
+        // Auto-collapse on mobile
+        if (window.innerWidth < 768) {
+            sidebar.classList.add('collapsed');
+            mainContent.classList.add('expanded');
+        }
+    </script>
+</body>
+</html>

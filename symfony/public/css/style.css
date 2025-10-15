@@ -1,0 +1,317 @@
+/* Variables de couleur */
+:root {
+    --primary-dark: #1a1a2e;
+    --primary-purple: #4a1d8f;
+    --primary-blue: #2d1b69;
+    --accent-purple: #6b46c1;
+    --accent-blue: #5b7be4;
+    --sidebar-bg: #16213e;
+    --sidebar-hover: #2d3561;
+    --card-bg: #ffffff;
+    --text-light: #e0e0e0;
+    --text-muted: #a0a0a0;
+}
+
+/* Reset et base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--text-light);
+}
+
+/* Top Navigation */
+.top-nav {
+    background: linear-gradient(90deg, var(--primary-purple) 0%, var(--primary-blue) 100%);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030;
+    height: 70px;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    letter-spacing: 0.5px;
+}
+
+.nav-link {
+    transition: all 0.3s ease;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+}
+
+.nav-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+.sidebar-toggle {
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.sidebar-toggle:hover {
+    transform: scale(1.1);
+}
+
+/* Sidebar */
+.sidebar {
+    position: fixed;
+    top: 70px;
+    left: 0;
+    width: 280px;
+    height: calc(100vh - 70px);
+    background: var(--sidebar-bg);
+    box-shadow: 4px 0 12px rgba(0, 0, 0, 0.3);
+    overflow-y: auto;
+    transition: all 0.3s ease;
+    z-index: 1020;
+}
+
+.sidebar.collapsed {
+    left: -280px;
+}
+
+.sidebar-content {
+    padding: 1.5rem 0;
+}
+
+.sidebar-section {
+    margin-bottom: 1.5rem;
+}
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    color: var(--text-light);
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+}
+
+.sidebar-header:hover {
+    background: var(--sidebar-hover);
+    border-left-color: var(--accent-purple);
+}
+
+.sidebar-header i.bi-chevron-down {
+    transition: transform 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.sidebar-header[aria-expanded="false"] i.bi-chevron-down {
+    transform: rotate(-90deg);
+}
+
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem 0.75rem 2.5rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+}
+
+.sidebar-item:hover {
+    background: var(--sidebar-hover);
+    color: var(--text-light);
+    border-left-color: var(--accent-blue);
+}
+
+.sidebar-item.active {
+    background: rgba(107, 70, 193, 0.2);
+    color: var(--accent-purple);
+    border-left-color: var(--accent-purple);
+    font-weight: 600;
+}
+
+.sidebar-item i {
+    font-size: 0.6rem;
+}
+
+/* Main Content */
+.main-content {
+    margin-left: 280px;
+    margin-top: 70px;
+    padding: 2rem;
+    min-height: calc(100vh - 70px);
+    transition: all 0.3s ease;
+}
+
+.main-content.expanded {
+    margin-left: 0;
+}
+
+/* Cards */
+.card {
+    background: rgba(255, 255, 255, 0.98);
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 16px 40px rgba(107, 70, 193, 0.3);
+}
+
+.card-header {
+    background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-blue) 100%);
+    color: white;
+    font-weight: 700;
+    padding: 1.2rem;
+    border: none;
+    font-size: 1.1rem;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* Category Cards - Style spécial pour les cartes de catégorie */
+.category-card {
+    min-height: 200px;
+}
+
+.category-card .card-header {
+    padding: 1rem;
+    font-size: 1rem;
+}
+
+.category-card .list-group-item {
+    padding: 0.75rem 1rem;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+}
+
+.category-card .list-group-item:hover {
+    background: rgba(107, 70, 193, 0.08);
+    padding-left: 1.5rem;
+}
+
+/* Buttons */
+.btn-outline-primary {
+    border-color: var(--accent-purple);
+    color: var(--accent-purple);
+    transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+    background: var(--accent-purple);
+    border-color: var(--accent-purple);
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(107, 70, 193, 0.4);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-blue) 100%);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(107, 70, 193, 0.5);
+}
+
+/* Titles */
+h1 {
+    color: white;
+    font-weight: 700;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+h3 {
+    color: var(--accent-purple);
+    font-weight: 600;
+}
+
+/* List Groups */
+.list-group-item {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(107, 70, 193, 0.1);
+    margin-bottom: 0.5rem;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.list-group-item:hover {
+    background: rgba(107, 70, 193, 0.05);
+    transform: translateX(8px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.list-group-item-action {
+    cursor: pointer;
+}
+
+/* Alerts */
+.alert {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Forms */
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 2px solid rgba(107, 70, 193, 0.2);
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--accent-purple);
+    box-shadow: 0 0 0 0.25rem rgba(107, 70, 193, 0.15);
+}
+
+/* Scrollbar personnalisé */
+.sidebar::-webkit-scrollbar {
+    width: 8px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: var(--primary-dark);
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: var(--accent-purple);
+    border-radius: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-blue);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 250px;
+        left: -250px;
+    }
+    
+    .main-content {
+        margin-left: 0;
+    }
+    
+    .navbar-brand {
+        font-size: 1.2rem;
+    }
+}

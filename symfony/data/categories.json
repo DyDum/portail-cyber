@@ -1,0 +1,28 @@
+{
+    "O365": [
+        {
+            "name": "Outlook Web",
+            "url": "https:\/\/outlook.office.com\/"
+        },
+        {
+            "name": "SharePoint",
+            "url": "https:\/\/sharepoint.com\/"
+        }
+    ],
+    "Sécurité": [
+        {
+            "name": "Centre SentinelOne",
+            "url": "https:\/\/sentinelone.example.com\/"
+        },
+        {
+            "name": "BeyondTrust",
+            "url": "https:\/\/beyondtrust.com"
+        }
+    ],
+    "Mail": [
+        {
+            "name": "Vade",
+            "url": "https:\/\/www.vadesecure.com\/fr\/"
+        }
+    ]
+}
