@@ -1,93 +1,191 @@
-# Portail cyber
+# 🧱 Portail Cyber — Dashboard Symfony
 
+## 📖 Description
 
+**Portail Cyber** est une application web basée sur **Symfony 7.3** et **Bootstrap 5**, déployée dans un environnement **Docker** simplifié.  
+Elle fournit un tableau de bord centralisé permettant d’accéder à différentes fonctionnalités d’administration et d’analyse de sécurité.
 
-## Getting started
+Le portail prend en charge une **authentification via RADIUS** pour les environnements d’entreprise,  
+avec un **mode local de secours** (compte `admin/admin`) pour le développement ou les tests hors réseau.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+---
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## 🚀 Fonctionnalités principales
 
-## Add your files
+- 🔐 **Authentification RADIUS** (via `dapphp/radius`)
+- 🧩 **Compte local intégré** (`admin/admin` et `test/test`) pour mode hors ligne
+- 🧭 **Interface responsive** avec Bootstrap 5
+- 🧱 **Architecture Symfony** (contrôleurs, templates Twig, sécurité, routing)
+- 📊 **Dashboard personnalisable** (catégories, flux RSS)
+- 🐳 **Déploiement Docker complet** avec PHP-FPM et Nginx
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+---
+
+## 🧩 Architecture des conteneurs
+
+| Service | Rôle | Image |
+|----------|------|-------|
+| **php** | Application Symfony (PHP 8.3 + Composer) | `php:8.3-fpm` |
+| **nginx** | Reverse proxy et serveur web | `nginx:latest` |
+
+L’arborescence du projet est montée dans `/var/www/html` sur le conteneur PHP et Nginx.
+
+---
+
+## 📁 Structure du projet
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.unicancer.local/infra-sec/portail-cyber.git
-git branch -M master
-git push -uf origin master
+Portail_Cyber/
+├── docker-compose.yml
+├── Dockerfile
+├── nginx/
+│   └── default.conf
+├── symfony/
+│   ├── config/
+│   ├── public/
+│   ├── src/
+│   │   ├── Controller/
+│   │   └── Security/
+│   │       ├── RadiusUserProvider.php
+│   │       └── RadiusAuthenticator.php
+│   ├── templates/
+│   │   ├── base.html.twig
+│   │   └── security/login.html.twig
+│   └── .env
 ```
 
-## Integrate with your tools
+---
 
-- [ ] [Set up project integrations](https://gitlab.unicancer.local/infra-sec/portail-cyber/-/settings/integrations)
+## ⚙️ Installation
 
-## Collaborate with your team
+### 1️⃣ Cloner le dépôt
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+```bash
+git clone https://github.com/DyDum/portail-cyber.git
+cd portail-cyber
+```
 
-## Test and Deploy
+### 2️⃣ Démarrer l’environnement Docker
 
-Use the built-in continuous integration in GitLab.
+```bash
+docker-compose up -d --build
+```
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+Cela démarre les conteneurs PHP et Nginx.
 
-***
+---
 
-# Editing this README
+## 🔑 Authentification
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+Deux modes sont disponibles :
 
-## Suggestions for a good README
+### 🔹 Mode local (par défaut)
+- Identifiant : `admin`  
+- Mot de passe : `admin`
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+### 🔹 Mode RADIUS
+Pour activer l’authentification via un serveur RADIUS,  
+éditer le fichier `.env` à la racine du projet :
 
-## Name
-Choose a self-explaining name for your project.
+```dotenv
+USE_RADIUS=true
+RADIUS_SERVER=radius-server
+RADIUS_SECRET=shared_secret
+RADIUS_PORT=1812
+```
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+Par défaut :
+```dotenv
+USE_RADIUS=false
+```
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+⚠️ Si le serveur RADIUS ne répond pas ou que `USE_RADIUS=false`,  
+le système bascule automatiquement sur le mode **local**.
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+---
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+## 🧱 Configuration Symfony
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+### Fichier `config/packages/security.yaml`
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+- Définit le firewall `main`
+- Active `RadiusAuthenticator`
+- Utilise un provider mémoire `admin/admin`
+- Gère les rôles et les redirections (`/dashboard`, `/admin`, etc.)
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+---
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+## 💻 Commandes utiles
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+### Vider le cache Symfony
+```bash
+docker exec -it portail_php php bin/console cache:clear
+```
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+### Accéder au conteneur PHP
+```bash
+docker exec -it portail_php bash
+```
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+### Vérifier les logs
+```bash
+docker logs portail_php
+```
 
-## License
-For open source projects, say how it is licensed.
+---
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+## 🧪 Accès à l’application
+
+Une fois les conteneurs lancés :  
+➡️ [http://localhost:8080](http://localhost:8080)
+
+Routes principales :
+| URL | Description |
+|------|--------------|
+| `/login` | Page de connexion |
+| `/dashboard` | Tableau de bord utilisateur |
+| `/admin` | Interface d’administration (ROLE_ADMIN) |
+
+---
+
+## 🧰 Dépendances principales
+
+| Composant | Version | Rôle |
+|------------|----------|------|
+| Symfony | 7.3 | Framework principal |
+| PHP | 8.3 | Environnement d’exécution |
+| Nginx | latest | Serveur web |
+| Composer | 2.x | Gestion des dépendances |
+| dapphp/radius | ^2.0 | Client RADIUS PHP |
+| Bootstrap | 5.3 | Interface responsive |
+
+---
+
+## 🧑‍💻 Mode développement
+
+Pour installer les dépendances PHP dans le conteneur :
+
+```bash
+docker exec -it portail_php composer install
+```
+
+Les fichiers Symfony sont montés dans le conteneur,  
+les modifications locales sont donc automatiquement prises en compte.
+
+---
+
+## 🧾 Licence
+
+Projet sous licence **MIT**.  
+Modification, redistribution ou intégration à un projet interne autorisé.
+
+---
+
+## 🧭 Roadmap
+
+- [x] Authentification locale
+- [x] Authentification RADIUS
+- [x] Gestion des flux RSS
+- [x] Interface d’administration pour les catégories
+- [ ] Mode multi-utilisateurs
+- [ ] Monitoring simple du serveur RADIUS
