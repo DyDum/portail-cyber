@@ -13,16 +13,37 @@
     </div>
 
     {# Barre de filtres des flux #}
-    <div class="mb-3">
-        <a href="{{ path('rss_list') }}" 
-           class="btn btn-outline-secondary {% if selectedFeed is null %}active{% endif %}">Tous</a>
-        {% for id, feed in rssFeeds %}
-            <a href="{{ path('rss_list') ~ '?feed=' ~ id }}" 
-               class="btn btn-outline-secondary {% if selectedFeed == id and selectedFeed is not null %}active{% endif %}">
-               {{ feed.name }}
+    <div class="mb-4">
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <a href="{{ path('rss_list') }}" 
+            class="btn btn-sm {{ selectedFeed is null ? 'btn-primary' : 'btn-outline-light' }}">
+                <i class="bi bi-grid-3x3-gap me-1"></i> Tous les flux
             </a>
-        {% endfor %}
+
+            {% for feed in rssFeeds %}
+                <div class="rss-filter-item {{ selectedFeed is not null and selectedFeed == loop.index0 ? 'active' : '' }}">
+                    <a href="{{ path('rss_list', { feed: loop.index0 }) }}" 
+                    class="rss-filter-link">
+                        <i class="bi bi-rss-fill me-2"></i>
+                        {{ feed.name }}
+                    </a>
+                    <button 
+                        class="favorite-btn"
+                        data-feed-index="{{ loop.index0 }}"
+                        data-favorite="{{ loop.index0 in favorites ? 'true' : 'false' }}"
+                        title="{{ loop.index0 in favorites ? 'Retirer des favoris' : 'Ajouter aux favoris' }}"
+                    >
+                        {% if loop.index0 in favorites %}
+                            <i class="bi bi-star-fill text-warning"></i>
+                        {% else %}
+                            <i class="bi bi-star"></i>
+                        {% endif %}
+                    </button>
+                </div>
+            {% endfor %}
+        </div>
     </div>
+
 
     {% if invalidFeed %}
         <div class="alert alert-danger mt-4">
@@ -73,4 +94,37 @@
         </div>
     {% endif %}
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.favorite-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const feedIndex = btn.dataset.feedIndex;
+                const isFav = btn.dataset.favorite === 'true';
+
+                try {
+                    const response = await fetch(`/favorites/toggle/${feedIndex}`, { method: 'POST' });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        btn.dataset.favorite = isFav ? 'false' : 'true';
+                        btn.innerHTML = isFav
+                            ? '<i class="bi bi-star text-light fs-5"></i>'
+                            : '<i class="bi bi-star-fill text-warning fs-5"></i>';
+                    } else {
+                        alert("Erreur : impossible de mettre à jour les favoris.");
+                    }
+                } catch (error) {
+                    console.error(error);
+                    alert("Erreur réseau : impossible de contacter le serveur.");
+                }
+            });
+        });
+    });
+</script>
+
+
 {% endblock %}

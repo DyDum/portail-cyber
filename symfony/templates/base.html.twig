@@ -60,6 +60,14 @@
                 </div>
             </div>
 
+            <div class="sidebar-section">
+                <a href="/rss/favorites" class="sidebar-item {{ app.request.pathinfo starts with '/rss/favorites' ? 'active' : '' }}">
+                    <i class="bi bi-star-fill me-2 text-warning"></i>
+                    Favoris
+                </a>
+            </div>
+
+
             <!-- RSS Section -->
             <div class="sidebar-section">
                 <div class="sidebar-header" data-bs-toggle="collapse" data-bs-target="#rssMenu">

@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+{% block title %}⭐ Mes Favoris - Portail Cyber{% endblock %}
+
+{% block body %}
+<div class="container-fluid mt-4">
+    <h1 class="mb-3"><i class="bi bi-star-fill text-warning me-2"></i>Mes flux favoris</h1>
+
+    {% if feeds is empty %}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle-fill me-2"></i>
+            Vous n'avez pas encore ajouté de flux favoris.
+        </div>
+    {% else %}
+        <div class="list-group">
+            {% for feed in feeds %}
+                <a href="/rss?feed={{ loop.index0 }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>{{ feed.name }}</strong><br>
+                        <small class="text-muted">{{ feed.url }}</small>
+                    </div>
+                    <i class="bi bi-rss-fill text-warning"></i>
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -66,7 +66,7 @@ class RssController extends AbstractController
                         'source' => $feedData['name'],
                         'title' => $item->getTitle(),
                         'link' => $item->getLink(),
-                        'date' => $item->getLastModified()?->format('Y-m-d H:i') ?? '',
+                        'date' => $item->getLastModified()?->format('Y-m-d') ?? '',
                     ];
                 }
             } catch (\Throwable $e) {
@@ -74,11 +74,17 @@ class RssController extends AbstractController
             }
         }
 
+        $favoritesFile = __DIR__ . '/../../data/favorites_' . $this->getUser()->getUserIdentifier() . '.json';
+        $favorites = file_exists($favoritesFile)
+            ? json_decode(file_get_contents($favoritesFile), true)['favorites']
+            : [];
+
         usort($articles, fn($a, $b) => strcmp($b['date'], $a['date']));
 
         return $this->render('rss/index.html.twig', [
             'articles' => $articles,
             'feeds' => $feeds,
+            'favorites' => $favorites,
             'selectedFeed' => $feedIndex >= 0 ? $feedIndex : null,
             'invalidFeed' => null,
         ]);
