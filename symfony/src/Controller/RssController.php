@@ -17,8 +17,8 @@ class RssController extends AbstractController
     public function index(Request $request): Response
     {
         $feedIndex = $request->query->getInt('feed', -1);
-
         $rssFile = __DIR__ . '/../../data/rss.json';
+
         if (!file_exists($rssFile)) {
             return $this->render('error.html.twig', [
                 'message' => "Le fichier RSS n'existe pas ou n'est pas accessible.",
@@ -41,7 +41,7 @@ class RssController extends AbstractController
             ]);
         }
 
-        // Sélectionne un seul flux si feed est précisé
+        // Filtrage si un flux spécifique est demandé
         if ($feedIndex >= 0) {
             $feeds = [$feeds[$feedIndex]];
         }
@@ -49,13 +49,9 @@ class RssController extends AbstractController
         // Initialisation de FeedIo
         $psr17Factory = new Psr17Factory();
         $httpClient = new FeedIoHttpClient(
-            new \Http\Adapter\Guzzle7\Client(new GuzzleClient()),
-            $psr17Factory,
-            $psr17Factory
+            new \Http\Adapter\Guzzle7\Client(new GuzzleClient())
         );
-
-        $logger = new NullLogger();
-        $feedIo = new FeedIo($httpClient, $logger);
+        $feedIo = new FeedIo($httpClient, new NullLogger());
 
         $articles = [];
         foreach ($feeds as $feedData) {
@@ -63,10 +59,11 @@ class RssController extends AbstractController
                 $result = $feedIo->read($feedData['url']);
                 foreach ($result->getFeed() as $item) {
                     $articles[] = [
+                        'feedIndex' => $feedIndex,
                         'source' => $feedData['name'],
                         'title' => $item->getTitle(),
                         'link' => $item->getLink(),
-                        'date' => $item->getLastModified()?->format('Y-m-d') ?? '',
+                        'date' => $item->getLastModified()?->format('Y-m-d H:i') ?? '',
                     ];
                 }
             } catch (\Throwable $e) {
@@ -74,17 +71,11 @@ class RssController extends AbstractController
             }
         }
 
-        $favoritesFile = __DIR__ . '/../../data/favorites_' . $this->getUser()->getUserIdentifier() . '.json';
-        $favorites = file_exists($favoritesFile)
-            ? json_decode(file_get_contents($favoritesFile), true)['favorites']
-            : [];
-
         usort($articles, fn($a, $b) => strcmp($b['date'], $a['date']));
 
         return $this->render('rss/index.html.twig', [
             'articles' => $articles,
             'feeds' => $feeds,
-            'favorites' => $favorites,
             'selectedFeed' => $feedIndex >= 0 ? $feedIndex : null,
             'invalidFeed' => null,
         ]);

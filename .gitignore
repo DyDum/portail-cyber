@@ -53,3 +53,4 @@
 
 /symfony/.env
 **/.env.dev
+favorites_*.json

@@ -145,6 +145,49 @@ body {
     font-size: 0.6rem;
 }
 
+/* Sous-items avec boutons favoris */
+.sidebar-item .text-decoration-none {
+    color: var(--text-muted);
+    transition: color 0.2s ease;
+    flex-grow: 1;
+}
+
+.sidebar-item .text-decoration-none:hover {
+    color: var(--text-light);
+}
+
+.sidebar-item .text-decoration-none.active {
+    color: var(--accent-purple);
+    font-weight: 600;
+}
+
+.sidebar-item .toggle-fav {
+    opacity: 0;
+    transition: all 0.2s ease;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+.sidebar-item:hover .toggle-fav {
+    opacity: 1;
+}
+
+.sidebar-item .toggle-fav i.bi-star {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.sidebar-item .toggle-fav i.bi-star-fill {
+    color: #fbbf24;
+}
+
+.sidebar-item .toggle-fav:hover {
+    transform: scale(1.15);
+}
+
+.sidebar-item .toggle-fav:hover i.bi-star {
+    color: rgba(251, 191, 36, 0.6);
+}
+
 /* Main Content */
 .main-content {
     margin-left: 280px;
@@ -225,11 +268,6 @@ body {
     background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-blue) 100%);
     border: none;
     transition: all 0.3s ease;
-    padding: 0.5rem 1rem;
-}
-
-.btn-outline-light {
-    padding: 0.5rem 1rem;
 }
 
 .btn-primary:hover {
@@ -388,4 +426,242 @@ h3 {
 
 .rss-filter-item.active .favorite-btn:hover {
     color: #fbbf24;
+}
+
+.btn-primary, .btn-outline-light{
+    padding: 0.5rem 1rem;
+}
+
+/* --- Étoiles interactives dans la sidebar --- */
+.toggle-fav {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.2s ease, color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.toggle-fav:hover {
+    color: #fbbf24;
+    transform: scale(1.2);
+}
+.toggle-fav i {
+    font-size: 1rem;
+    pointer-events: none;
+}
+
+/* ✨ Animation quand on ajoute un favori */
+@keyframes fav-pop {
+    0%   { transform: scale(1); color: #fbbf24; }
+    50%  { transform: scale(1.5); color: #ffd700; }
+    100% { transform: scale(1); color: #fbbf24; }
+}
+.star-animate {
+    animation: fav-pop 0.4s ease-in-out;
+}
+
+/* Clique complet sur les éléments RSS/Favoris */
+.sidebar-item {
+    position: relative;
+}
+.sidebar-item button.toggle-fav {
+    position: relative;
+    z-index: 5;
+}
+.sidebar-item:hover {
+    cursor: pointer;
+}
+.sidebar-item > span {
+    pointer-events: none; /* empêche le conflit avec le lien parent */
+}
+
+/* --- Apparition / disparition fluide des favoris dans la sidebar --- */
+@keyframes fav-fade-in {
+    0% {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fav-fade-out {
+    0% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+}
+
+/* Application des animations */
+.sidebar-item.fade-in {
+    animation: fav-fade-in 0.3s ease forwards;
+}
+
+.sidebar-item.fade-out {
+    animation: fav-fade-out 0.3s ease forwards;
+}
+
+/* Supprime l’effet brusque quand les éléments apparaissent */
+.sidebar-item {
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+/* --- Bonus : petite ombre au survol --- */
+.sidebar-item:hover {
+    box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.05);
+}
+
+/* Empêche le clignotement quand les boutons étoiles sont animés */
+.toggle-fav i {
+    transition: transform 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+}
+
+/* --- Toast container --- */
+.toast-container {
+    position: fixed;
+    top: 80px; /* sous la navbar */
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    pointer-events: none; /* ne bloque pas les clics */
+}
+
+/* Toast Base */
+.toast-notification {
+    min-width: 300px;
+    max-width: 400px;
+    background: linear-gradient(135deg, rgba(22, 33, 62, 0.98), rgba(26, 26, 46, 0.98));
+    backdrop-filter: blur(10px);
+    color: white;
+    padding: 16px 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    pointer-events: all;
+    transform: translateX(400px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    border-left: 4px solid;
+    position: relative;
+}
+
+.toast-notification.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.toast-notification.hide {
+    transform: translateX(400px);
+    opacity: 0;
+}
+
+/* Toast Icon */
+.toast-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Toast Content */
+.toast-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.toast-title {
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 1.2;
+}
+
+.toast-message {
+    font-size: 13px;
+    opacity: 0.9;
+    line-height: 1.4;
+}
+
+/* Toast Close Button */
+.toast-close {
+    background: none;
+    border: none;
+    color: white;
+    opacity: 0.6;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    font-size: 18px;
+}
+
+.toast-close:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* Toast Types */
+.toast-notification.success {
+    border-left-color: #10b981;
+}
+
+.toast-notification.success .toast-icon {
+    color: #10b981;
+}
+
+.toast-notification.error {
+    border-left-color: #ef4444;
+}
+
+.toast-notification.error .toast-icon {
+    color: #ef4444;
+}
+
+.toast-notification.warning {
+    border-left-color: #f59e0b;
+}
+
+.toast-notification.warning .toast-icon {
+    color: #f59e0b;
+}
+
+.toast-notification.info {
+    border-left-color: #3b82f6;
+}
+
+.toast-notification.info .toast-icon {
+    color: #3b82f6;
+}
+
+/* Progress Bar */
+.toast-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 0 0 12px 12px;
+    animation: toast-progress 3000ms linear forwards;
+}
+
+@keyframes toast-progress {
+    from { width: 100%; }
+    to { width: 0%; }
 }

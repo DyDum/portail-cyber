@@ -6,5 +6,13 @@
     {
         "name": "CERT-FR",
         "url": "https:\/\/cert.ssi.gouv.fr\/feed\/"
+    },
+    {
+        "name": "The Hacker News",
+        "url": "https:\/\/feeds.feedburner.com\/TheHackersNews\/"
+    },
+    {
+        "name": "Bloublou",
+        "url": "https:\/\/cert.ssi.gouv.fr\/feed\/"
     }
 ]

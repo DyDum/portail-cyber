@@ -12,20 +12,27 @@
         </div>
     </div>
 
-    <div class="mb-3">
-        <a href="{{ path('dashboard') }}" 
-           class="btn btn-outline-secondary {% if selectedoutil is null %}active{% endif %}">
-           Toutes
-        </a>
-        {% for outilName, links in outils %}
-            <a href="{{ path('dashboard') ~ '?outil=' ~ outilName|url_encode }}"
-               class="btn btn-outline-secondary {% if selectedoutil and selectedoutil == outilName %}active{% endif %}">
-               {{ outilName }}
+    {# Barre de filtres des outils #}
+    <div class="mb-4">
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <a href="{{ path('dashboard') }}" 
+            class="btn btn-sm {{ selectedoutil is null ? 'btn-primary' : 'btn-outline-light' }}">
+                <i class="bi bi-grid-3x3-gap me-1"></i> Tous les outils
             </a>
-        {% endfor %}
+
+            {% for outilName, links in outils %}
+                <div class="rss-filter-item {{ selectedoutil is not null and selectedoutil == outilName ? 'active' : '' }}">
+                    <a href="{{ path('dashboard') ~ '?outil=' ~ outilName|url_encode }}" 
+                    class="rss-filter-link text-decoration-none">
+                        <i class="bi bi-wrench-adjustable-circle me-2"></i>
+                        {{ outilName }}
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
     </div>
 
-    <!-- Cards des catégories -->
+    <!-- Cards des outils -->
     <div class="row g-4">
         {% for outil, links in outils_dashboard %}
             <div class="col-12 col-md-6 col-lg-4">

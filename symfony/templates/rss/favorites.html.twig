@@ -1,27 +1,92 @@
 {% extends 'base.html.twig' %}
-{% block title %}⭐ Mes Favoris - Portail Cyber{% endblock %}
+{% block title %}Favoris RSS - Portail Cyber{% endblock %}
 
 {% block body %}
-<div class="container-fluid mt-4">
-    <h1 class="mb-3"><i class="bi bi-star-fill text-warning me-2"></i>Mes flux favoris</h1>
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="mb-2">
+                <i class="bi bi-star-fill text-warning me-3"></i>Favoris RSS
+            </h1>
+            <p class="text-light opacity-75">Retrouvez ici uniquement vos flux RSS marqués en favoris.</p>
+        </div>
+    </div>
 
-    {% if feeds is empty %}
-        <div class="alert alert-info">
+    {% if noFavorites %}
+        <div class="alert alert-info mt-4">
             <i class="bi bi-info-circle-fill me-2"></i>
-            Vous n'avez pas encore ajouté de flux favoris.
+            Vous n’avez encore aucun favori.
+            <a href="{{ path('rss_list') }}" class="alert-link">Voir tous les flux RSS</a> pour en ajouter.
         </div>
     {% else %}
-        <div class="list-group">
-            {% for feed in feeds %}
-                <a href="/rss?feed={{ loop.index0 }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                    <div>
-                        <strong>{{ feed.name }}</strong><br>
-                        <small class="text-muted">{{ feed.url }}</small>
-                    </div>
-                    <i class="bi bi-rss-fill text-warning"></i>
+        {# Barre de filtres #}
+        <div class="mb-3">
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                <a href="{{ path('rss_favorites') }}" 
+                   class="btn btn-sm {{ selectedFav is null ? 'btn-primary' : 'btn-outline-light' }}">
+                    <i class="bi bi-star-fill me-1"></i> Tous les favoris
                 </a>
-            {% endfor %}
+
+                {% for feed in favs %}
+                    <div class="rss-filter-item {{ selectedFav is not null and selectedFav == loop.index0 ? 'active' : '' }}">
+                        <a href="{{ path('rss_favorites', { fav: loop.index0 }) }}" 
+                           class="rss-filter-link">
+                            <i class="bi bi-rss-fill me-2"></i>
+                            {{ feed.name }}
+                        </a>
+                        <button 
+                            class="favorite-btn"
+                            data-feed-index="{{ loop.index0 }}"
+                            data-favorite="true"
+                            title="Retirer des favoris"
+                        >
+                            <i class="bi bi-star-fill text-warning"></i>
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
         </div>
+
+        {% if articles is not empty %}
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body p-0">
+                            <div class="list-group list-group-flush">
+                                {% for article in articles %}
+                                    <a href="{{ article.link }}" target="_blank" class="list-group-item list-group-item-action" 
+                                    data-feed-index="{{ article.feedIndex }}">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div class="flex-grow-1">
+                                                <h5 class="mb-2 text-dark fw-bold">{{ article.title }}</h5>
+                                                <div class="d-flex align-items-center text-muted small">
+                                                    <i class="bi bi-rss-fill text-warning me-2"></i>
+                                                    <span class="me-3">{{ article.source }}</span>
+                                                    <i class="bi bi-clock me-2"></i>
+                                                    <span>{{ article.date }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="ms-3">
+                                                <i class="bi bi-arrow-right text-muted fs-5"></i>
+                                            </div>
+                                        </div>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="row">
+                <div class="col-12">
+                    <div class="alert alert-info mt-4">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        Aucun article trouvé pour ce flux favori.
+                    </div>
+                </div>
+            </div>
+        {% endif %}
     {% endif %}
 </div>
 {% endblock %}

@@ -44,7 +44,6 @@
         </div>
     </div>
 
-
     {% if invalidFeed %}
         <div class="alert alert-danger mt-4">
             <i class="bi bi-exclamation-triangle-fill me-2"></i>
@@ -94,37 +93,5 @@
         </div>
     {% endif %}
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        document.querySelectorAll('.favorite-btn').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-
-                const feedIndex = btn.dataset.feedIndex;
-                const isFav = btn.dataset.favorite === 'true';
-
-                try {
-                    const response = await fetch(`/favorites/toggle/${feedIndex}`, { method: 'POST' });
-                    const result = await response.json();
-
-                    if (result.success) {
-                        btn.dataset.favorite = isFav ? 'false' : 'true';
-                        btn.innerHTML = isFav
-                            ? '<i class="bi bi-star text-light fs-5"></i>'
-                            : '<i class="bi bi-star-fill text-warning fs-5"></i>';
-                    } else {
-                        alert("Erreur : impossible de mettre à jour les favoris.");
-                    }
-                } catch (error) {
-                    console.error(error);
-                    alert("Erreur réseau : impossible de contacter le serveur.");
-                }
-            });
-        });
-    });
-</script>
-
 
 {% endblock %}
