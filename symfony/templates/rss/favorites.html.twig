@@ -28,15 +28,15 @@
                 </a>
 
                 {% for feed in favs %}
-                    <div class="rss-filter-item {{ selectedFav is not null and selectedFav == loop.index0 ? 'active' : '' }}">
-                        <a href="{{ path('rss_favorites', { fav: loop.index0 }) }}" 
+                    <div class="rss-filter-item {{ selectedFav is not null and selectedFav == feed.index ? 'active' : '' }}">
+                        <a href="{{ path('rss_favorites', { fav: feed.index }) }}" 
                            class="rss-filter-link">
                             <i class="bi bi-rss-fill me-2"></i>
                             {{ feed.name }}
                         </a>
                         <button 
                             class="favorite-btn"
-                            data-feed-index="{{ loop.index0 }}"
+                            data-feed-index="{{ feed.index }}"
                             data-favorite="true"
                             title="Retirer des favoris"
                         >

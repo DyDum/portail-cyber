@@ -1,10 +1,6 @@
 <?php
 namespace App\Controller;
 
-use FeedIo\FeedIo;
-use FeedIo\Adapter\Http\Client as FeedIoHttpClient;
-use GuzzleHttp\Client as GuzzleClient;
-use Psr\Log\NullLogger;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,7 +10,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class FavoriteController extends AbstractController
 {
     #[Route('/rss/favorites', name: 'rss_favorites')]
-    public function favorites(Request $request): Response
+    public function favorites(Request $request, RssController $rssController): Response
     {
         $user = $this->getUser();
         if (!$user) {
@@ -44,7 +40,6 @@ class FavoriteController extends AbstractController
         $favorites = file_exists($favoritesFile)
             ? json_decode(file_get_contents($favoritesFile), true)['favorites'] ?? []
             : [];
-        sort($favorites, SORT_NUMERIC);
 
         if (empty($favorites)) {
             return $this->render('rss/favorites.html.twig', [
@@ -55,59 +50,39 @@ class FavoriteController extends AbstractController
             ]);
         }
 
-        // Récupération des flux favoris avec leurs index
+        // Sélection des flux favoris
         $favFeeds = [];
         foreach ($favorites as $index) {
             if (isset($feeds[$index])) {
-                // on garde aussi l'index original
-                $feeds[$index]['index'] = $index;
                 $favFeeds[] = $feeds[$index];
             }
         }
-        $favs = $favFeeds;
 
-        // Si un paramètre fav est présent → ne charger qu’un seul favori
+        // Si un favori spécifique est demandé, on le filtre
         if ($favIndex >= 0 && isset($feeds[$favIndex]) && in_array($favIndex, $favorites)) {
             $favFeeds = [$feeds[$favIndex]];
         }
 
-        // Lecture via FeedIo
-        $httpClient = new FeedIoHttpClient(
-            new \Http\Adapter\Guzzle7\Client(new GuzzleClient())
-        );
-        $feedIo = new FeedIo($httpClient, new NullLogger());
+        // 🔹 Récupération des articles via RssController
+        $articles = $rssController->fetchArticles($favFeeds, $favIndex);
 
-        $articles = [];
-        foreach ($favFeeds as $feedData) {
-            try {
-                $result = $feedIo->read($feedData['url']);
-                foreach ($result->getFeed() as $item) {
-                    $articles[] = [
-                        'feedIndex' => $feedData['index'] ?? $favIndex, 
-                        'source' => $feedData['name'],
-                        'title' => $item->getTitle(),
-                        'link' => $item->getLink(),
-                        'date' => $item->getLastModified()?->format('Y-m-d H:i') ?? '',
-                    ];
-                }
-            } catch (\Throwable $e) {
-                continue;
+        $favFeedsList = [];
+        foreach ($favorites as $index) {
+            if (isset($feeds[$index])) {
+                $favFeedsList[] = ['url' => $feeds[$index]['url'], 'name' => $feeds[$index]['name'], 'index' => $index];
             }
         }
-
-        usort($articles, fn($a, $b) => strcmp($b['date'], $a['date']));
 
         return $this->render('rss/favorites.html.twig', [
             'articles' => $articles,
             'feeds' => $favFeeds,
-            'favs' => $favs,
+            'favs' => $favFeedsList,
             'selectedFav' => $favIndex >= 0 ? $favIndex : null,
             'noFavorites' => false,
         ]);
     }
 
-
-    #[Route('/rss/favorite/toggle/{index}', name: 'rss_toggle_favorite', methods: ['POST'])]
+    #[Route('/rss/favorites/toggle/{index}', name: 'rss_toggle_favorite', methods: ['POST'])]
     public function toggleFavorite(int $index): JsonResponse
     {
         $user = $this->getUser();

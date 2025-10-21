@@ -40,7 +40,7 @@ class RadiusUserProvider implements UserProviderInterface
 
     public function validateCredentials(string $username, string $password): bool
     {
-        // 🚧 Si le RADIUS est désactivé → toujours refuser (on passe sur le local)
+        // 🚧 Si le RADIUS est désactivé : toujours refuser (on passe sur le local)
         if (!$this->useRadius) {
             return false;
         }

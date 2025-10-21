@@ -41,12 +41,23 @@ class RssController extends AbstractController
             ]);
         }
 
-        // Filtrage si un flux spécifique est demandé
         if ($feedIndex >= 0) {
             $feeds = [$feeds[$feedIndex]];
         }
 
-        // Initialisation de FeedIo
+        $articles = $this->fetchArticles($feeds, $feedIndex);
+
+        return $this->render('rss/index.html.twig', [
+            'articles' => $articles,
+            'feeds' => $feeds,
+            'selectedFeed' => $feedIndex >= 0 ? $feedIndex : null,
+            'invalidFeed' => null,
+        ]);
+    }
+
+    // ✅ nouvelle méthode réutilisable
+    public function fetchArticles(array $feeds, int $feedIndex = -1): array
+    {
         $psr17Factory = new Psr17Factory();
         $httpClient = new FeedIoHttpClient(
             new \Http\Adapter\Guzzle7\Client(new GuzzleClient())
@@ -72,12 +83,6 @@ class RssController extends AbstractController
         }
 
         usort($articles, fn($a, $b) => strcmp($b['date'], $a['date']));
-
-        return $this->render('rss/index.html.twig', [
-            'articles' => $articles,
-            'feeds' => $feeds,
-            'selectedFeed' => $feedIndex >= 0 ? $feedIndex : null,
-            'invalidFeed' => null,
-        ]);
+        return $articles;
     }
 }

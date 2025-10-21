@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const icon = btn.querySelector('i');
 
         try {
-            const response = await fetch(`/rss/favorite/toggle/${feedIndex}`, {
+            const response = await fetch(`/rss/favorites/toggle/${feedIndex}`, {
                 method: 'POST',
                 headers: { 'X-Requested-With': 'XMLHttpRequest' },
             });
@@ -27,19 +27,26 @@ document.addEventListener('DOMContentLoaded', () => {
                     btn.dataset.favorite = 'false';
                     icon.classList.remove('bi-star-fill', 'text-warning');
                     icon.classList.add('bi-star');
-                    showToast('Retiré des favoris', 'success');
+
                 } else {
                     btn.dataset.favorite = 'true';
                     icon.classList.remove('bi-star');
                     icon.classList.add('bi-star-fill', 'text-warning', 'star-animate');
                     setTimeout(() => icon.classList.remove('star-animate'), 400);
-                    showToast('Ajouté aux favoris', 'success');
                 }
 
-                // Met à jour la sidebar et la page
+                // Met à jour la sidebar
                 updateSidebarFavorites(data.favorites);
                 updateSidebarRSS(data.favorites);
-                updatePage();
+
+                // Condition principale selon la page actuelle
+                await refreshRssUI(data);
+
+                if(isFavorite) {
+                    showToast('Retiré des favoris', 'success');
+                }else{
+                    showToast('Ajouté aux favoris', 'success');
+                }
             }
 
         } catch (err) {
@@ -48,11 +55,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    function updatePage(){
-        if (window.location.pathname === '/rss/favorites' || window.location.pathname === '/rss/favorites/') {
-            setTimeout(() => {
-                window.location.reload();
-            }, 5000);
+    async function refreshRssUI(data) {
+        const currentPath = window.location.pathname;
+
+        if (currentPath === '/rss' || currentPath === '/rss/') {
+            updateRSSPageFilters(data.favorites);
+        } else {
+            updateRSSPageFilters(data.favorites);
+            await Promise.all([
+                updateFavoriteFilters(currentPath),
+                updateRssFeeds(currentPath)
+            ]);
         }
     }
 
@@ -99,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
             a.className = 'sidebar-item d-flex justify-content-between align-items-center fade-in';
             a.dataset.feedIndex = index;
 
-            // Si l'URL correspond à ce favori → active
+            // Si l'URL correspond à ce favori : active
             if (currentUrl === `/rss/favorites?fav=${index}`) {
                 a.classList.add('active');
             }
@@ -125,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const isFav = favorites.includes(feedIndex);
 
             btn.dataset.favorite = isFav ? 'true' : 'false';
-            
+
             if (isFav) {
                 icon.classList.remove('bi-star');
                 icon.classList.add('bi-star-fill', 'text-warning');
@@ -145,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!icon) return;
 
             btn.dataset.favorite = isFav ? 'true' : 'false';
-            
+
             if (isFav) {
                 icon.classList.remove('bi-star');
                 icon.classList.add('bi-star-fill', 'text-warning');
@@ -154,5 +167,59 @@ document.addEventListener('DOMContentLoaded', () => {
                 icon.classList.add('bi-star');
             }
         });
+    }
+
+    async function updateFavoriteFilters(url) {
+        try {
+            const response = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+            if (!response.ok) throw new Error(`Erreur HTTP ${response.status}`);
+
+            const html = await response.text();
+
+            // Remplace uniquement le bloc de filtres (tu peux adapter le sélecteur selon ton HTML)
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const newFilters = doc.querySelector('.rss-filter-item')?.parentElement;
+
+            if (newFilters) {
+                const filterContainer = document.querySelector('.rss-filter-item')?.parentElement;
+                if (filterContainer) {
+                    filterContainer.replaceWith(newFilters);
+                }
+            }
+
+            console.log('✅ Filtres favoris mis à jour.');
+        } catch (err) {
+            console.error('Erreur lors de la mise à jour des filtres favoris :', err);
+        }
+    }
+
+
+    /**
+     * Recharge les articles RSS affichés
+     * @param {string} url - URL du flux RSS à charger (ex: /rss?feed=2)
+     */
+    async function updateRssFeeds(url) {
+        try {
+            const response = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+            if (!response.ok) throw new Error(`Erreur HTTP ${response.status}`);
+
+            const html = await response.text();
+
+            // Récupère les nouveaux articles dans le HTML
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const newArticles = doc.querySelector('.list-group');
+
+            // Remplace le bloc des articles
+            const articleContainer = document.querySelector('.list-group');
+            if (articleContainer && newArticles) {
+                articleContainer.replaceWith(newArticles);
+            }
+
+            console.log('✅ Flux RSS mis à jour.');
+        } catch (err) {
+            console.error('Erreur lors de la mise à jour des flux RSS :', err);
+        }
     }
 });

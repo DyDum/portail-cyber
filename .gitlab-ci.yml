@@ -1,0 +1,27 @@
+image: docker
+
+services:
+  - name: docker
+    command: ["--privileged"]
+
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
+  GITLAB_RUNNER_SERVICE_TIMEOUT: 60
+  IMAGE_NAME: "$CI_REGISTRY_IMAGE:latest"
+  GIT_SSL_NO_VERIFY: true
+
+before_script:
+  - docker info
+
+stages:
+  - build
+
+build:
+  stage: build
+  script:
+    - docker build -t registry.unicancer.local:5001/infra-sec/portail-cyber:latest .
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" registry.unicancer.local:5001
+    - docker push registry.unicancer.local:5001/infra-sec/portail-cyber:latest
+  only:
+    - main
