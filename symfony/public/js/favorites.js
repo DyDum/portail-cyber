@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             updateRSSPageFilters(data.favorites);
             await Promise.all([
-                updateFavoriteFilters(currentPath),
+                await updateFavoriteFilters(currentPath),
                 updateRssFeeds(currentPath)
             ]);
         }
@@ -187,8 +187,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     filterContainer.replaceWith(newFilters);
                 }
             }
-
-            console.log('✅ Filtres favoris mis à jour.');
         } catch (err) {
             console.error('Erreur lors de la mise à jour des filtres favoris :', err);
         }
@@ -216,8 +214,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (articleContainer && newArticles) {
                 articleContainer.replaceWith(newArticles);
             }
-
-            console.log('✅ Flux RSS mis à jour.');
         } catch (err) {
             console.error('Erreur lors de la mise à jour des flux RSS :', err);
         }

@@ -12,7 +12,7 @@ class AdminController extends AbstractController
 
     public function __construct()
     {
-        $this->dataFile = __DIR__ . '/../../data/categories.json';
+        $this->dataFile = __DIR__ . '/../../data/outils.json';
     }
 
     #[Route('/admin', name: 'admin_dashboard', methods: ['GET', 'POST'])]
